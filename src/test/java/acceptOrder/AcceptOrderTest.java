@@ -3,18 +3,20 @@ package acceptOrder;
 import apiClients.ApiClientCouriers;
 import apiClients.ApiClientsOrders;
 import couriers.Courier;
+import couriers.CourierLogin;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.response.ValidatableResponse;
+import io.restassured.response.Response;
+import orders.CreateOrder;
 import orders.OrderResponseSuccess;
 import orders.OrderTrack;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import java.util.List;
 
-
+//Это задание можешь выполнить по желанию: оно не повлияет на оценку за основную часть, но поможет дополнительно попрактиковаться.
+// не удалось получить успешный ответ
 public class AcceptOrderTest {
 
     //сначала создать заказ todo
@@ -25,12 +27,28 @@ public class AcceptOrderTest {
     private int orderId;
     private int track;
 
+    private List<String> color;
+    private CourierLogin courierLogin;
+
+    private CreateOrder createOrder;
+
+    private OrderResponseSuccess orderResponseSuccess;
 
     @Before
     public void setUp() {
         courier = Courier.getRandom();
+        courierLogin = new CourierLogin(courier.getLogin(), courier.getPassword());
         apiClientCouriers = new ApiClientCouriers();
+        apiClientCouriers.create(courier);
+        apiClientCouriers.login(courierLogin);
+        courierId = apiClientCouriers
+                .login(CourierLogin.from(courier))
+                .extract()
+                .path("id");
         apiClientsOrders = new ApiClientsOrders();
+        createOrder = CreateOrder.generateRandomOrderWithDefiniteColor(color);
+
+
     }
 
     @After
@@ -44,13 +62,10 @@ public class AcceptOrderTest {
     @Test
     @DisplayName("Принять заказ")
     public void acceptOrderSuccessful() {
-        OrderResponseSuccess orderResponseSuccess = new OrderResponseSuccess(orderId, courierId);
-        ValidatableResponse response = apiClientsOrders
-                .put(orderResponseSuccess)
-                .then().log().all()
-                .statusCode(200)
-                .assertThat().body("ok", notNullValue())
-                .assertThat().body("ok", equalTo(true));
+        orderResponseSuccess = new OrderResponseSuccess(orderId, courierId);
+        Response response = apiClientsOrders.put(orderResponseSuccess);
+        response.then().log().all()
+                .statusCode(200);
     }
 
 }

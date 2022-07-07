@@ -1,7 +1,9 @@
 package couriers;
 
+import lombok.Data;
 import org.apache.commons.lang3.RandomStringUtils;
 
+@Data
 public class Courier {
 
     public String login; //Логин курьера, записывается в поле login таблицы Couriers
@@ -43,21 +45,18 @@ public class Courier {
         this.password = password;
         return this;
     }
-    /*{
-    "login": "ninja",
-    "password": "1234",
-    "firstName": "saske"
-}*/
 
-    @Override
-    public String toString() {
-        return "Courier {" +
-                "login:" + login + "," +
-                "password:" + password + "," +
-                "firstName:" + firstName + "}";
+    public Courier(Courier courier) {
+        this.login = courier.getLogin();
+        this.password = courier.getPassword();
+    }
+
+
+    public static Courier from(Courier courier) {
+        return new Courier(courier);
+
     }
 }
-
 
 
 

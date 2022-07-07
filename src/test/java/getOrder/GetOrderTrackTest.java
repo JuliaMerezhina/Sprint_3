@@ -2,9 +2,13 @@ package getOrder;
 
 import apiClients.ApiClientsOrders;
 import io.qameta.allure.junit4.DisplayName;
+import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import orders.CreateOrder;
+import orders.OrderTrack;
 import org.hamcrest.core.StringContains;
+import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,15 +27,36 @@ public class GetOrderTrackTest {
     public void setUp() {
         apiClientsOrders = new ApiClientsOrders();
         order = CreateOrder.generateRandomOrderWithDefiniteColor(color);
+        track = apiClientsOrders.post(order)
+                .then()
+                .log()
+                .all()
+                .statusCode(201)
+                .extract()
+                .path("track");
     }
+
+
+    @After
+    public void cancelOrder() {
+        OrderTrack orderResponse = new OrderTrack(track);
+        apiClientsOrders.cancel(orderResponse);
+    }
+
 
     @Test
     @DisplayName("Получение заказа по номеру = успешно")
     public void getOrderByTrackSuccessfully() {
-        String message = "true";
-        ValidatableResponse response = apiClientsOrders.createOrder(order)
+        Response response = apiClientsOrders.getByNumber(track);
+        response
+                .then().log().all()
                 .assertThat()
                 .statusCode(200);
+        orderId = response.then()
+                .extract()
+                .path("order.id");
+        Assert.assertNotNull(orderId);
+        System.out.println("id заказа: " + orderId);
     }
 
 

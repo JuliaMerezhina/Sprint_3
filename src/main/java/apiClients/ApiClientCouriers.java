@@ -35,7 +35,7 @@ public class ApiClientCouriers extends ApiClientsScooter {
                 .spec(reqSpec)
                 .body(courierLogin)
                 .when()
-                .post(PATH + "login/")
+                .post(LOGIN_URL)
                 .then();
     }
 

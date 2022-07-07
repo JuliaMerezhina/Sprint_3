@@ -15,20 +15,9 @@ public class ApiClientsOrders extends ApiClientsScooter {
     public final String PATH = PreconditionsEndpoints.BASEURI + PreconditionsEndpoints.ORDERSURI;
     private final String ORDER_URL = "/orders";
     private final String ACCEPT_ID_ORDER_URL = ORDER_URL + "/accept/{id}";
-    private final String ACCEPT_ORDER_URL = ORDER_URL + "/accept/";
+
     private final String GET_ORDER_URL = ORDER_URL + "/track";
     private final String CANCEL_ORDER_URL = ORDER_URL + "/cancel";
-
-
-    @Step //Создать заказ
-    public ValidatableResponse createOrder(CreateOrder order) {
-        return given()
-                .spec(reqSpec)
-                .body(order)
-                .when()
-                .post(ORDER_PATH)
-                .then();
-    }
 
     @Step //Получить список заказов
     public Response getListOfOrders() {
@@ -89,20 +78,13 @@ public class ApiClientsOrders extends ApiClientsScooter {
         return given().log().all()
                 .baseUri(BASE_URL)
                 .contentType("application/json")
-                .pathParam("id", OrderResponseSuccess.getId())
-                .queryParam("courierId", OrderResponseSuccess.getCourierId())
+                .pathParam("id", orderResponseSuccess.getId())
+                .queryParam("courierId", orderResponseSuccess.getCourierId())
                 .body(orderResponseSuccess)
                 .when()
                 .put(ACCEPT_ID_ORDER_URL);
     }
 
-    public Response putWithoutId(OrderResponseSuccess orderResponseSuccess) {
-        return reqSpec
-                .queryParam("courierId", OrderResponseSuccess.getCourierId())
-                .body(orderResponseSuccess)
-                .when()
-                .put(ACCEPT_ORDER_URL);
-    }
 
     public Response get() {
         return reqSpec
@@ -113,12 +95,6 @@ public class ApiClientsOrders extends ApiClientsScooter {
     public Response getByNumber(int track) {
         return reqSpecWithoutHeaders
                 .queryParam("t", track)
-                .when()
-                .get(GET_ORDER_URL);
-    }
-
-    public Response getByNumber() {
-        return reqSpecWithoutHeaders
                 .when()
                 .get(GET_ORDER_URL);
     }

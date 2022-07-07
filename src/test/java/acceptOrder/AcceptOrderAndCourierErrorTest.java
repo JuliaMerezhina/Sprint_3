@@ -41,11 +41,10 @@ public class AcceptOrderAndCourierErrorTest {
     public void acceptOrderNonExistOrder() {
         orderId = 0;
         String message = "Курьера с таким id не существует";
-        ValidatableResponse response = apiClientsOrders.acceptOrders(orderId, courierId);
-        int statusCode = response.extract().statusCode();
-        String acceptOrderError = response.extract().path("message");
-        assertEquals("statusCode неверный", 404, statusCode);
-        assertEquals(message, acceptOrderError);
+        ValidatableResponse response = apiClientsOrders.acceptOrders(orderId, courierId)
+                .assertThat()
+                .statusCode(404);
+        assertEquals(message, response.extract().path("message"));
     }
 
 
